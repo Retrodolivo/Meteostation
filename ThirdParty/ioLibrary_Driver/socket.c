@@ -184,7 +184,7 @@ int8_t socket(uint8_t sn, uint8_t protocol, uint16_t port, uint8_t flag)
    //A20150401 : For release the previous sock_io_mode
    sock_io_mode &= ~(1 <<sn);
    //
-	sock_io_mode |= ((flag & SF_IO_NONBLOCK) << sn);   
+   sock_io_mode |= ((flag & SF_IO_NONBLOCK) << sn);
    sock_is_sending &= ~(1<<sn);
    sock_remained_size[sn] = 0;
    //M20150601 : repalce 0 with PACK_COMPLETED
@@ -193,6 +193,7 @@ int8_t socket(uint8_t sn, uint8_t protocol, uint16_t port, uint8_t flag)
    //
    while(getSn_SR(sn) == SOCK_CLOSED);
    return (int8_t)sn;
+
 }	   
 
 int8_t close(uint8_t sn)

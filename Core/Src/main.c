@@ -21,10 +21,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "string.h"
+
 #include "FreeRTOS.h"
 #include "task.h"
 
 #include "bme280.h"
+#include "wizchip.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -65,6 +68,8 @@ void bme_measure(void *parameters);
 /* USER CODE BEGIN 0 */
 bme280_t bme280;
 
+w5500_t w5500;
+
 /* USER CODE END 0 */
 
 /**
@@ -74,11 +79,29 @@ bme280_t bme280;
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-  BaseType_t status;
-
   bme280.i2c_port_handler = &hi2c3;
   bme280.i2c_addr = 0xEC;
 
+  w5500.spi_port_handler = &hspi2;
+
+  uint8_t rxtx_buf[] = {2, 2, 2, 2};
+  uint8_t mac[] = {0x00, 0x08, 0xdc, 0xab, 0xcd, 0xef};
+  uint8_t ip[] = {192, 168, 1, 112};
+  uint8_t sn[] = {255, 255, 255, 0};
+  uint8_t gw[] = {192, 168, 1, 1};
+//  uint8_t dns[] = {0, 0, 0, 0};
+//  w5500.net_info.dhcp = NETINFO_STATIC;
+
+
+  memcpy(w5500.net_info.mac, mac, sizeof(mac) / sizeof(mac[0]));
+  memcpy(w5500.net_info.ip, ip, sizeof(ip) / sizeof(ip[0]));
+  memcpy(w5500.net_info.sn, sn, sizeof(sn) / sizeof(sn[0]));
+  memcpy(w5500.net_info.gw, gw, sizeof(gw) / sizeof(gw[0]));
+//  memcpy(w5500.net_info.dns, dns, sizeof(dns) / sizeof(dns[0]));
+  memcpy(w5500.net_buf.rx, rxtx_buf, sizeof(rxtx_buf) / sizeof(rxtx_buf[0]));
+  memcpy(w5500.net_buf.tx, rxtx_buf, sizeof(rxtx_buf) / sizeof(rxtx_buf[0]));
+
+  BaseType_t status;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -114,6 +137,8 @@ int main(void)
 
   bme280_config(&bme280, OSRS_2, OSRS_2, OSRS_2, MODE_FORCED, T_SB_0p5, IIR_4);
   bme280_measure(&bme280);
+
+  w5500_init(&w5500);
 
   vTaskStartScheduler();
 
@@ -230,7 +255,7 @@ static void MX_SPI2_Init(void)
   hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi2.Init.NSS = SPI_NSS_SOFT;
-  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
   hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
