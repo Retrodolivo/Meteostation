@@ -31,7 +31,9 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "socket.h"
+#include "wizchip_conf.h"
+#include "wizchip.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
